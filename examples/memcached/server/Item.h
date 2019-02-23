@@ -5,12 +5,7 @@
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 
-#include <boost/make_shared.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-
-using muduo::string;
-using muduo::StringPiece;
+#include <memory>
 
 namespace muduo
 {
@@ -21,11 +16,11 @@ class Buffer;
 }
 
 class Item;
-typedef boost::shared_ptr<Item> ItemPtr;  // TODO: use unique_ptr
-typedef boost::shared_ptr<const Item> ConstItemPtr;  // TODO: use unique_ptr
+typedef std::shared_ptr<Item> ItemPtr;  // TODO: use unique_ptr
+typedef std::shared_ptr<const Item> ConstItemPtr;  // TODO: use unique_ptr
 
 // Item is immutable once added into hash table
-class Item : boost::noncopyable
+class Item : muduo::noncopyable
 {
  public:
   enum UpdatePolicy
@@ -39,17 +34,17 @@ class Item : boost::noncopyable
     kCas,
   };
 
-  static ItemPtr makeItem(StringPiece keyArg,
+  static ItemPtr makeItem(muduo::StringPiece keyArg,
                           uint32_t flagsArg,
                           int exptimeArg,
                           int valuelen,
                           uint64_t casArg)
   {
-    return boost::make_shared<Item>(keyArg, flagsArg, exptimeArg, valuelen, casArg);
+    return std::make_shared<Item>(keyArg, flagsArg, exptimeArg, valuelen, casArg);
     //return ItemPtr(new Item(keyArg, flagsArg, exptimeArg, valuelen, casArg));
   }
 
-  Item(StringPiece keyArg,
+  Item(muduo::StringPiece keyArg,
        uint32_t flagsArg,
        int exptimeArg,
        int valuelen,
@@ -116,7 +111,7 @@ class Item : boost::noncopyable
 
   void output(muduo::net::Buffer* out, bool needCas = false) const;
 
-  void resetKey(StringPiece k);
+  void resetKey(muduo::StringPiece k);
 
  private:
   int totalLen() const { return keylen_ + valuelen_; }

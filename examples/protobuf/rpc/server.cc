@@ -4,7 +4,7 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/protorpc/RpcServer.h>
 
-#include <boost/bind.hpp>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -27,7 +27,7 @@ class SudokuServiceImpl : public SudokuService
   }
 };
 
-}
+}  // namespace sudoku
 
 int main()
 {

@@ -4,6 +4,8 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/protorpc/RpcServer.h>
 
+#include <unistd.h>
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -24,7 +26,7 @@ class EchoServiceImpl : public EchoService
   }
 };
 
-}
+}  // namespace echo
 
 int main(int argc, char* argv[])
 {

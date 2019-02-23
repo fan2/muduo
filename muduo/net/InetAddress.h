@@ -69,6 +69,9 @@ class InetAddress : public muduo::copyable
   static bool resolve(StringArg hostname, InetAddress* result);
   // static std::vector<InetAddress> resolveAll(const char* hostname, uint16_t port = 0);
 
+  // set IPv6 ScopeID
+  void setScopeId(uint32_t scope_id);
+
  private:
   union
   {
@@ -77,7 +80,7 @@ class InetAddress : public muduo::copyable
   };
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_INETADDRESS_H

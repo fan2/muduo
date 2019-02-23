@@ -9,17 +9,15 @@
 #include <muduo/net/TcpConnection.h>
 #include <muduo/net/protorpc/RpcChannel.h>
 
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
 static const int kRequests = 50000;
 
-class RpcClient : boost::noncopyable
+class RpcClient : noncopyable
 {
  public:
 
@@ -36,9 +34,9 @@ class RpcClient : boost::noncopyable
       count_(0)
   {
     client_.setConnectionCallback(
-        boost::bind(&RpcClient::onConnection, this, _1));
+        std::bind(&RpcClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&RpcChannel::onMessage, get_pointer(channel_), _1, _2, _3));
+        std::bind(&RpcChannel::onMessage, get_pointer(channel_), _1, _2, _3));
     // client_.enableRetry();
   }
 
@@ -69,7 +67,7 @@ class RpcClient : boost::noncopyable
 
   void replied(echo::EchoResponse* resp)
   {
-    // LOG_INFO << "replied:\n" << resp->DebugString().c_str();
+    // LOG_INFO << "replied:\n" << resp->DebugString();
     // loop_->quit();
     ++count_;
     if (count_ < kRequests)
@@ -120,18 +118,18 @@ int main(int argc, char* argv[])
     pool.start();
     InetAddress serverAddr(argv[1], 8888);
 
-    boost::ptr_vector<RpcClient> clients;
+    std::vector<std::unique_ptr<RpcClient>> clients;
     for (int i = 0; i < nClients; ++i)
     {
-      clients.push_back(new RpcClient(pool.getNextLoop(), serverAddr, &allConnected, &allFinished));
-      clients.back().connect();
+      clients.emplace_back(new RpcClient(pool.getNextLoop(), serverAddr, &allConnected, &allFinished));
+      clients.back()->connect();
     }
     allConnected.wait();
     Timestamp start(Timestamp::now());
     LOG_INFO << "all connected";
     for (int i = 0; i < nClients; ++i)
     {
-      clients[i].sendRequest();
+      clients[i]->sendRequest();
     }
     allFinished.wait();
     Timestamp end(Timestamp::now());

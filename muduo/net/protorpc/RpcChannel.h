@@ -17,8 +17,6 @@
 
 #include <google/protobuf/service.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <map>
 
 // Service and RpcChannel classes are incorporated from
@@ -97,7 +95,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
 
   explicit RpcChannel(const TcpConnectionPtr& conn);
 
-  ~RpcChannel();
+  ~RpcChannel() override;
 
   void setConnection(const TcpConnectionPtr& conn)
   {
@@ -118,7 +116,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
                   ::google::protobuf::RpcController* controller,
                   const ::google::protobuf::Message* request,
                   ::google::protobuf::Message* response,
-                  ::google::protobuf::Closure* done);
+                  ::google::protobuf::Closure* done) override;
 
   void onMessage(const TcpConnectionPtr& conn,
                  Buffer* buf,
@@ -142,13 +140,13 @@ class RpcChannel : public ::google::protobuf::RpcChannel
   AtomicInt64 id_;
 
   MutexLock mutex_;
-  std::map<int64_t, OutstandingCall> outstandings_;
+  std::map<int64_t, OutstandingCall> outstandings_ GUARDED_BY(mutex_);
 
   const std::map<std::string, ::google::protobuf::Service*>* services_;
 };
-typedef boost::shared_ptr<RpcChannel> RpcChannelPtr;
+typedef std::shared_ptr<RpcChannel> RpcChannelPtr;
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_PROTORPC_RPCCHANNEL_H
